@@ -217,3 +217,122 @@ void CPU6502::BCC() {
         PC += 2;
     }
 }
+
+void CPU6502::BCS() {
+    if (getC()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
+
+void CPU6502::BEQ() {
+    if (getZ()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
+
+void CPU6502::BNE() {
+    if (!getZ()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
+
+void CPU6502::BMI() {
+    if (getN()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
+
+void CPU6502::BPL() {
+    if (!getN()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
+
+void CPU6502::BVS() {
+    if (getV()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
+
+void CPU6502::BVC() {
+    if (!getV()) {
+        if ((opcode[1] & 0x80) != 0) {
+            hasCrossPage(PC, PC + 2 - twosComplement(opcode[1])) ? cycles += 4 : cycles += 3;
+            PC += 2 - twosComplement(opcode[1]);
+        }
+        else {
+            hasCrossPage(PC, PC + opcode[1]) ? cycles += 4 : cycles += 3;
+            PC += 2 + opcode[1];
+        }
+    }
+    else {
+        cycles += 2;
+        PC += 2;
+    }
+}
