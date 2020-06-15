@@ -39,6 +39,52 @@ uint8_t CPU6502::twosComplement(const uint8_t& byte) {
     return abs(byte - 256);
 }
 
+void CPU6502::pushPC() {
+    *RAM[SP + 0x100] = PC >> 8; // copy the MSB
+    --SP;
+    *RAM[SP + 0x100] = PC; // copy the LSB
+    --SP;
+
+}
+
+void CPU6502::popPC() {
+    PC = *RAM[(uint8_t)(SP + 0x101)] | (*RAM[(uint8_t)(SP + 0x102)] << 8);
+}
+
+uint8_t CPU6502::get_processor_status() {
+    uint8_t PS{};
+    PS |= getC();
+    PS |= (getZ() << 1);
+    PS |= (getI() << 2);
+    PS |= (getD() << 3);
+    PS |= (0x01 << 4);
+    PS |= (0x01 << 5);
+    PS |= (getV() << 6);
+    PS |= (getN() << 7);
+}
+
+void CPU6502::pushProcessorStatus() {
+    processor_status |= getC();
+    processor_status |= (getZ() << 1);
+    processor_status |= (getI() << 2);
+    processor_status |= (getD() << 3);
+    processor_status |= (0x01 << 4);
+    processor_status |= (0x01 << 5);
+    processor_status |= (getV() << 6);
+    processor_status |= (getN() << 7);
+    *RAM[SP + 0x100] = processor_status;
+    --SP;
+}
+
+void CPU6502::popProcessorStatus() {
+    processor_status = *RAM[(uint8_t )(SP + 0x101)];
+    setC((processor_status & 0x01) != 0);
+    setZ((processor_status & 0x02) != 0);
+    setI((processor_status & 0x04) != 0);
+    setD((processor_status & 0x08) != 0);
+    setV((processor_status & 0x40) != 0);
+    setN((processor_status & 0x80) != 0);
+}
 // registers getters and setters
 uint8_t CPU6502::getA() {return this->A;}
 uint8_t CPU6502::getX() {return this->X;}
@@ -52,6 +98,7 @@ void CPU6502::setY(uint8_t byte) {this->Y = byte;}
 bool CPU6502::getC() {return this->C;}
 bool CPU6502::getZ() {return this->Z;}
 bool CPU6502::getI() {return this->I;}
+bool CPU6502::getD() {return this->D;}
 bool CPU6502::getB() {return this->B;}
 bool CPU6502::getV() {return this->V;}
 bool CPU6502::getN() {return this->N;}
@@ -59,6 +106,7 @@ bool CPU6502::getN() {return this->N;}
 void CPU6502::setC(bool flag) {this->C = flag;}
 void CPU6502::setZ(bool flag) {this->Z = flag;}
 void CPU6502::setI(bool flag) {this->I = flag;}
+void CPU6502::setD(bool flag) {this->D = flag;}
 void CPU6502::setB(bool flag) {this->B = flag;}
 void CPU6502::setV(bool flag) {this->V = flag;}
 void CPU6502::setN(bool flag) {this->N = flag;}
@@ -170,10 +218,6 @@ void CPU6502::ADC() {
     setA(result & 0xff); // update accumulator
     setZ(getA() == 0);
     setN(getA() & 0x80);
-
-    //check how many cycles have passed
-    hasCrossPage(PC, PC + 3) ? cycles += 5 : cycles += 4;
-    PC += 3;
 }
 
 void CPU6502::AND() {
@@ -183,9 +227,6 @@ void CPU6502::AND() {
 
     setZ(getA() == 0);
     setN(getA() & 0x80);
-
-    cycles += 6;
-    PC += 2;
 }
 
 void CPU6502::ASL() {
@@ -196,9 +237,6 @@ void CPU6502::ASL() {
 
     setZ(byte == 0);
     setN((byte & 0x80) != 0);
-
-    cycles += 5;
-    PC += 2;
 }
 
 void CPU6502::BCC() {
@@ -335,4 +373,170 @@ void CPU6502::BVC() {
         cycles += 2;
         PC += 2;
     }
+}
+
+void CPU6502::BIT() {
+    uint8_t result = getA() & *RAM[address];
+
+    setZ(result == 0);
+    setV(*RAM[address] & 0x40);
+    setN(*RAM[address] & 0x80);
+}
+
+void CPU6502::BRK() {
+    pushPC();
+    pushProcessorStatus();
+    setB(true);
+    setI(true);
+    PC = *RAM[0xfffe] | (*RAM[0xffff] << 8);
+}
+
+void CPU6502::CLC() {setC(false);}
+void CPU6502::CLD() {setD(false);}
+void CPU6502::CLI() {setI(false);}
+void CPU6502::CLV() {setI(false);}
+void CPU6502::SEC() {setC(true);}
+void CPU6502::SED() {setD(true);}
+void CPU6502::SEI() {setI(true);}
+
+void CPU6502::CMP() {
+    uint8_t target = isIMM ? opcode[1] : *RAM[address];;
+    setC(getA() >= target);
+    setZ(getA() == target);
+    setN(((getA() - target) & 0x80) != 0);
+    isIMM = false;
+}
+
+void CPU6502::CPX() {
+    uint8_t target = isIMM ? opcode[1] : *RAM[address];;
+    setC(getX() >= target);
+    setZ(getX() == target);
+    setN(((getX() - target) & 0x80) != 0);
+    isIMM = false;
+}
+
+void CPU6502::CPY() {
+    uint8_t target = isIMM ? opcode[1] : *RAM[address];
+    setC(getY() >= target);
+    setZ(getY() == target);
+    setN(((getY() - target) & 0x80) != 0);
+    isIMM = false;
+}
+
+void CPU6502::DEC() {
+    *RAM[address] -= 1;
+    setZ(*RAM[address] == 0);
+    setN((*RAM[address] & 0x80) != 0);
+}
+
+void CPU6502::DEX() {
+    setX(getX() - 1);
+    setZ(getX() == 0);
+    setN((getX() & 0x80) != 0);
+}
+
+void CPU6502::DEY() {
+    setY(getY() - 1);
+    setZ(getY() == 0);
+    setN((getY() & 0x80) != 0);
+}
+
+void CPU6502::INC() {
+    *RAM[address] += 1;
+    setZ(*RAM[address] == 0);
+    setN((*RAM[address] & 0x80) != 0);
+}
+
+void CPU6502::INX() {
+    setX(getX() + 1);
+    setZ(getX() == 0);
+    setN((getX() & 0x80) != 0);
+}
+
+void CPU6502::INY() {
+    setY(getY() + 1);
+    setZ(getY() == 0);
+    setN((getY() & 0x80) != 0);
+}
+
+void CPU6502::EOR() {
+    uint8_t target = isIMM ? opcode[1] : *RAM[address];
+    setA(getA() ^ target);
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::ORA() {
+    uint8_t target = isIMM ? opcode[1] : *RAM[address];
+    setA(getA() | target);
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::JMP() {
+    PC = address;
+}
+
+void CPU6502::JSR() {
+    pushPC();
+    PC = address;
+}
+
+void CPU6502::RTS() {
+    popPC();
+}
+
+void CPU6502::RTI() {
+    popProcessorStatus();
+    popPC();
+}
+
+void CPU6502::SBC() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint16_t result = getA() - M -(1 - getC());
+    isIMM = false;
+
+    //check for overflow flag
+    setV(checkForOverflow(getA(), -M, getC()));
+    //set flags
+    setC(result > 0xff);
+    setA(result & 0xff); // update accumulator
+    setZ(getA() == 0);
+    setN(getA() & 0x80);
+}
+
+void CPU6502::STA() {
+    *RAM[address] = getA();
+}
+
+void CPU6502::STX() {
+    *RAM[address] = getX();
+}
+
+void CPU6502::STY() {
+    *RAM[address] = getY();
+}
+
+void CPU6502::LDA() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setA(M);
+    setZ(getA() == 0);
+    setN(getA() & 0x80);
+    isIMM = false;
+}
+
+void CPU6502::LDX() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setX(M);
+    setZ(getA() == 0);
+    setN(getA() & 0x80);
+    isIMM = false;
+}
+
+void CPU6502::LDY() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setY(M);
+    setZ(getA() == 0);
+    setN(getA() & 0x80);
+    isIMM = false;
 }

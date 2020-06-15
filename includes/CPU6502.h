@@ -26,24 +26,31 @@ private:
     bool B{}; // Break
     bool V{}; // Overflow
     bool N{}; // Negative
+    uint8_t processor_status{};
 
     // utility functions
     bool checkForOverflow(uint8_t byte1, uint8_t byte2, bool carry);
     bool hasCrossPage(const uint16_t& current, const uint16_t& next);
     uint8_t twosComplement(const uint8_t& byte);
+    void pushPC(); // push current PC onto the stack
+    void popPC(); // retrieve PC from stack
 
 public:
     uint8_t read(uint16_t mem_addres);
     uint8_t write(uint16_t mem_address, uint8_t data);
 
-    uint8_t get_processor_status();
     // flags setters and getters
     void setC(bool flag);   bool getC();
     void setZ(bool flag);   bool getZ();
     void setI(bool flag);   bool getI();
+    void setD(bool flag);   bool getD();
     void setB(bool flag);   bool getB();
     void setV(bool flag);   bool getV();
     void setN(bool flag);   bool getN();
+    // Processor status related functions
+    uint8_t get_processor_status();
+    void pushProcessorStatus();
+    void popProcessorStatus();
 
     // registers setters and getters
     void setX(uint8_t byte);    uint8_t getX();
