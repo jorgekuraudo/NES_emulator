@@ -61,6 +61,7 @@ uint8_t CPU6502::get_processor_status() {
     PS |= (0x01 << 5);
     PS |= (getV() << 6);
     PS |= (getN() << 7);
+    return PS;
 }
 
 void CPU6502::pushProcessorStatus() {
