@@ -229,16 +229,6 @@ void CPU6502::AND() {
     setN(getA() & 0x80);
 }
 
-void CPU6502::ASL() {
-    uint8_t M = isACC ? getA() : *RAM[address];
-    uint8_t& byte = M;
-    setC((byte & 0x80) != 0);
-    byte = byte << 1;
-
-    setZ(byte == 0);
-    setN((byte & 0x80) != 0);
-}
-
 void CPU6502::BCC() {
     if (!getC()) {
         if ((opcode[1] & 0x80) != 0) {
@@ -539,4 +529,134 @@ void CPU6502::LDY() {
     setZ(getA() == 0);
     setN(getA() & 0x80);
     isIMM = false;
+}
+
+void CPU6502::LSR() {
+    uint8_t byte{};
+    if(isACC) {
+        byte = getA();
+        byte = byte >> 1;
+        setA(byte);
+        isACC = false;
+    }
+    else {
+        uint8_t& byte = *RAM[address];
+        byte = byte >> 1;
+    }
+    setC((byte & 0x01) != 0);
+    setZ(byte == 0);
+    setN((byte & 0x80) != 0);
+}
+
+void CPU6502::ROL() {
+    uint8_t byte{};
+    uint8_t old_carry = getC();
+    if(isACC) {
+        byte = getA();
+        byte = byte << 1;
+        byte |= old_carry;
+        setA(byte);
+        isACC = false;
+    }
+    else {
+        uint8_t& byte = *RAM[address];
+        byte = byte << 1;
+        byte |= old_carry;
+    }
+    setC((byte & 0x01) != 0);
+    setZ(byte == 0);
+    setN((byte & 0x80) != 0);
+}
+
+void CPU6502::ROR() {
+    uint8_t byte{};
+    uint8_t old_carry = getC();
+    if(isACC) {
+        byte = getA();
+        byte = byte >> 1;
+        byte |= (old_carry << 7);
+        setA(byte);
+        isACC = false;
+    }
+    else {
+        uint8_t& byte = *RAM[address];
+        byte = byte >> 1;
+        byte |= (old_carry << 7);
+    }
+    setC((byte & 0x01) != 0);
+    setZ(byte == 0);
+    setN((byte & 0x80) != 0);
+}
+
+void CPU6502::ASL() {
+    uint8_t byte{};
+    if(isACC) {
+        byte = getA();
+        byte = byte << 1;
+        setA(byte);
+        isACC = false;
+    }
+    else {
+        uint8_t& byte = *RAM[address];
+        byte = byte << 1;
+    }
+    setC((byte & 0x01) != 0);
+    setZ(byte == 0);
+    setN((byte & 0x80) != 0);
+}
+
+void CPU6502::NOP() {
+
+}
+
+void CPU6502::PHA() {
+    *RAM[SP + 0x100] = getA();
+    --SP;
+}
+
+void CPU6502::PHP() {
+    pushProcessorStatus();
+}
+
+void CPU6502::PLA() {
+    setA(*RAM[(uint8_t)(SP + 0x101)]);
+    ++SP;
+}
+
+void CPU6502::PLP() {
+    popProcessorStatus();
+}
+
+void CPU6502::TAX() {
+    setX(getA());
+    setZ(getX() == 0);
+    setN((getX() & 0x80) != 0);
+}
+
+void CPU6502::TAY() {
+    setY(getA());
+    setZ(getY() == 0);
+    setN((getY() & 0x80) != 0);
+}
+
+void CPU6502::TSX() {
+    setX(*RAM[SP + 0x100]);
+    setZ(getX() == 0);
+    setN((getX() & 0x80) != 0);
+}
+
+void CPU6502::TXA() {
+    setA(getX());
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::TXS() {
+    *RAM[SP + 0x100] = getX();
+}
+
+void CPU6502::TYA() {
+    setA(getY());
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
 }
