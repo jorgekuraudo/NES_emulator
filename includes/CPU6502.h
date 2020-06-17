@@ -28,6 +28,7 @@ private:
     bool N{}; // Negative
     uint8_t processor_status{};
 
+public:
     // utility functions
     bool checkForOverflow(uint8_t byte1, uint8_t byte2, bool carry);
     bool hasCrossPage(const uint16_t& current, const uint16_t& next);
@@ -35,27 +36,32 @@ private:
     void pushPC(); // push current PC onto the stack
     void popPC(); // retrieve PC from stack
 
-public:
     uint8_t read(uint16_t mem_addres);
     uint8_t write(uint16_t mem_address, uint8_t data);
 
+    void incCycles(long long int cycles);
+    long long int getCycles() const;
+
+    void incPC(int inc);
+    uint16_t getPC() const;
+
     // flags setters and getters
-    void setC(bool flag);   bool getC();
-    void setZ(bool flag);   bool getZ();
-    void setI(bool flag);   bool getI();
-    void setD(bool flag);   bool getD();
-    void setB(bool flag);   bool getB();
-    void setV(bool flag);   bool getV();
-    void setN(bool flag);   bool getN();
+    void setC(bool flag);   bool getC() const;
+    void setZ(bool flag);   bool getZ() const;
+    void setI(bool flag);   bool getI() const;
+    void setD(bool flag);   bool getD() const;
+    void setB(bool flag);   bool getB() const;
+    void setV(bool flag);   bool getV() const;
+    void setN(bool flag);   bool getN() const;
     // Processor status related functions
     uint8_t get_processor_status();
     void pushProcessorStatus();
     void popProcessorStatus();
 
     // registers setters and getters
-    void setX(uint8_t byte);    uint8_t getX();
-    void setY(uint8_t byte);    uint8_t getY();
-    void setA(uint8_t byte);    uint8_t getA();
+    void setX(uint8_t byte);    uint8_t getX() const;
+    void setY(uint8_t byte);    uint8_t getY() const;
+    void setA(uint8_t byte);    uint8_t getA() const;
 
     // addressing modes
     uint16_t IMP();     uint16_t ZPY();     uint16_t IND();

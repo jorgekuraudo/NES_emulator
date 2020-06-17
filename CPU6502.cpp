@@ -87,22 +87,22 @@ void CPU6502::popProcessorStatus() {
     setN((processor_status & 0x80) != 0);
 }
 // registers getters and setters
-uint8_t CPU6502::getA() {return this->A;}
-uint8_t CPU6502::getX() {return this->X;}
-uint8_t CPU6502::getY() {return this->Y;}
+uint8_t CPU6502::getA() const {return this->A;}
+uint8_t CPU6502::getX() const {return this->X;}
+uint8_t CPU6502::getY() const {return this->Y;}
 
 void CPU6502::setA(uint8_t byte) {this->A = byte;}
 void CPU6502::setX(uint8_t byte) {this->X = byte;}
 void CPU6502::setY(uint8_t byte) {this->Y = byte;}
 
 // flags getters and setters
-bool CPU6502::getC() {return this->C;}
-bool CPU6502::getZ() {return this->Z;}
-bool CPU6502::getI() {return this->I;}
-bool CPU6502::getD() {return this->D;}
-bool CPU6502::getB() {return this->B;}
-bool CPU6502::getV() {return this->V;}
-bool CPU6502::getN() {return this->N;}
+bool CPU6502::getC() const {return this->C;}
+bool CPU6502::getZ() const {return this->Z;}
+bool CPU6502::getI() const {return this->I;}
+bool CPU6502::getD() const {return this->D;}
+bool CPU6502::getB() const {return this->B;}
+bool CPU6502::getV() const {return this->V;}
+bool CPU6502::getN() const {return this->N;}
 
 void CPU6502::setC(bool flag) {this->C = flag;}
 void CPU6502::setZ(bool flag) {this->Z = flag;}
@@ -111,6 +111,23 @@ void CPU6502::setD(bool flag) {this->D = flag;}
 void CPU6502::setB(bool flag) {this->B = flag;}
 void CPU6502::setV(bool flag) {this->V = flag;}
 void CPU6502::setN(bool flag) {this->N = flag;}
+
+// cycles and PC operations
+void CPU6502::incCycles(long long inc) {
+    cycles += inc;
+}
+
+long long int CPU6502::getCycles() const {
+    return cycles;
+}
+
+void CPU6502::incPC(int inc) {
+    PC += inc;
+}
+
+uint16_t CPU6502::getPC() const {
+    return PC;
+}
 
 // Addressing modes definitions
 uint16_t CPU6502::IMP() {
