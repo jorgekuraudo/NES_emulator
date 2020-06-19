@@ -6,4 +6,13 @@ set(CMAKE_CXX_STANDARD 14)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/others/6502ops.csv
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(untitled1 main.cpp CPU6502.cpp includes/CPU6502.h includes/memory.h disassembler.cpp includes/disassembler.h machine.cpp includes/machine.h)
+#remove this in the final version
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/others/nestest.nes
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(GLOB SOURCES
+        include/*.h
+        src/*.cpp
+        )
+
+add_executable(NES_emulator ${SOURCES})
