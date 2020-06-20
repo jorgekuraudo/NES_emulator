@@ -65,8 +65,22 @@ void machine::emulate(uint8_t* opcode) {
 
         }
         case 0x02: printf("Opcode 0x02 hasn't been implemented yet\n"); break;
-        case 0x03: printf("Opcode 0x03 hasn't been implemented yet\n"); break;
-        case 0x04: printf("Opcode 0x04 hasn't been implemented yet\n"); break;
+        case 0x03:	//SLO IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->SLO();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x04:  //DOP ZP
+        {
+            cpu6502->ZP();
+            cpu6502->DOP();
+            cpu6502->incCycles(3);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x05:	//ORA ZP
         {
             cpu6502->ZP();
@@ -83,7 +97,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x07: printf("Opcode 0x07 hasn't been implemented yet\n"); break;
+        case 0x07:	//SLO ZP
+        {
+            cpu6502->ZP();
+            cpu6502->SLO();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x08:	//PHP
         {
             cpu6502->IMP();
@@ -108,8 +129,22 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0x0b: printf("Opcode 0x0b hasn't been implemented yet\n"); break;
-        case 0x0c: printf("Opcode 0x0c hasn't been implemented yet\n"); break;
+        case 0x0b:  //AAC Im
+        {
+            cpu6502->IMM();
+            cpu6502->AAC();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x0c:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x0d:	//ORA Abs
         {
             cpu6502->ABS();
@@ -126,7 +161,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x0f: printf("Opcode 0x0f hasn't been implemented yet\n"); break;
+        case 0x0f:	//SLO ABS
+        {
+            cpu6502->ABS();
+            cpu6502->SLO();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x10:	//BPL Rel
         {
             cpu6502->BPL();
@@ -142,8 +184,22 @@ void machine::emulate(uint8_t* opcode) {
 
         }
         case 0x12: printf("Opcode 0x12 hasn't been implemented yet\n"); break;
-        case 0x13: printf("Opcode 0x13 hasn't been implemented yet\n"); break;
-        case 0x14: printf("Opcode 0x14 hasn't been implemented yet\n"); break;
+        case 0x13:	//SLO IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->SLO();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x14:  //DOP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x15:	//ORA ZP,X
         {
             cpu6502->ZPX();
@@ -160,7 +216,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x17: printf("Opcode 0x17 hasn't been implemented yet\n"); break;
+        case 0x17:	//SLO ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->SLO();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x18:	//CLC
         {
             cpu6502->IMP();
@@ -177,9 +240,30 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x1a: printf("Opcode 0x1a hasn't been implemented yet\n"); break;
-        case 0x1b: printf("Opcode 0x1b hasn't been implemented yet\n"); break;
-        case 0x1c: printf("Opcode 0x1c hasn't been implemented yet\n"); break;
+        case 0x1a:	//NOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(1);
+            break;
+        }
+        case 0x1b:	//SLO ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->SLO();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0x1c:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x1d:	//ORA Abs,X
         {
             cpu6502->ABSX();
@@ -196,7 +280,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x1f: printf("Opcode 0x1f hasn't been implemented yet\n"); break;
+        case 0x1f:	//SLO ABS,X
+        {
+            cpu6502->ABSX();
+            cpu6502->SLO();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x20:	//JSR Abs
         {
             cpu6502->ABS();
@@ -214,7 +305,14 @@ void machine::emulate(uint8_t* opcode) {
 
         }
         case 0x22: printf("Opcode 0x22 hasn't been implemented yet\n"); break;
-        case 0x23: printf("Opcode 0x23 hasn't been implemented yet\n"); break;
+        case 0x23:	//RLA IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->RLA();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x24:	//BIT ZP
         {
             cpu6502->ZP();
@@ -239,7 +337,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x27: printf("Opcode 0x27 hasn't been implemented yet\n"); break;
+        case 0x27:	//RLA ZP
+        {
+            cpu6502->ZP();
+            cpu6502->RLA();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x28:	//PLP
         {
             cpu6502->IMP();
@@ -264,7 +369,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0x2b: printf("Opcode 0x2b hasn't been implemented yet\n"); break;
+        case 0x2b:  //AAC Im
+        {
+            cpu6502->IMM();
+            cpu6502->AAC();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x2c:	//BIT Abs
         {
             cpu6502->ABS();
@@ -289,7 +401,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x2f: printf("Opcode 0x2f hasn't been implemented yet\n"); break;
+        case 0x2f:	//RLA ABS
+        {
+            cpu6502->ABS();
+            cpu6502->RLA();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x30:	//BMI Rel
         {
             cpu6502->BMI();
@@ -305,8 +424,22 @@ void machine::emulate(uint8_t* opcode) {
 
         }
         case 0x32: printf("Opcode 0x32 hasn't been implemented yet\n"); break;
-        case 0x33: printf("Opcode 0x33 hasn't been implemented yet\n"); break;
-        case 0x34: printf("Opcode 0x34 hasn't been implemented yet\n"); break;
+        case 0x33:	//RLA IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->RLA();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x34:  //DOP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x35:	//AND ZP,X
         {
             cpu6502->ZPX();
@@ -323,7 +456,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x37: printf("Opcode 0x37 hasn't been implemented yet\n"); break;
+        case 0x37:	//RLA ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->RLA();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x38:	//SEC
         {
             cpu6502->IMP();
@@ -340,9 +480,30 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x3a: printf("Opcode 0x3a hasn't been implemented yet\n"); break;
-        case 0x3b: printf("Opcode 0x3b hasn't been implemented yet\n"); break;
-        case 0x3c: printf("Opcode 0x3c hasn't been implemented yet\n"); break;
+        case 0x3a:	//NOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(1);
+            break;
+        }
+        case 0x3b:	//RLA ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->RLA();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0x3c:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x3d:	//AND Abs,X
         {
             cpu6502->ABSX();
@@ -359,7 +520,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x3f: printf("Opcode 0x3f hasn't been implemented yet\n"); break;
+        case 0x3f:	//RLA ABS,X
+        {
+            cpu6502->ABSX();
+            cpu6502->RLA();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x40:	//RTI
         {
             cpu6502->IMP();
@@ -377,8 +545,22 @@ void machine::emulate(uint8_t* opcode) {
 
         }
         case 0x42: printf("Opcode 0x42 hasn't been implemented yet\n"); break;
-        case 0x43: printf("Opcode 0x43 hasn't been implemented yet\n"); break;
-        case 0x44: printf("Opcode 0x44 hasn't been implemented yet\n"); break;
+        case 0x43:	//SRE IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->SRE();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x44:  //DOP ZP
+        {
+            cpu6502->ZP();
+            cpu6502->DOP();
+            cpu6502->incCycles(3);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x45:	//EOR ZP
         {
             cpu6502->ZP();
@@ -395,7 +577,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x47: printf("Opcode 0x47 hasn't been implemented yet\n"); break;
+        case 0x47:	//SRE ZP
+        {
+            cpu6502->ZP();
+            cpu6502->SRE();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x48:	//PHA
         {
             cpu6502->IMP();
@@ -420,7 +609,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0x4b: printf("Opcode 0x4b hasn't been implemented yet\n"); break;
+        case 0x4b:  //ASR IMM
+        {
+            cpu6502->IMM();
+            cpu6502->ASR();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x4c:	//JMP Abs
         {
             cpu6502->ABS();
@@ -444,7 +640,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x4f: printf("Opcode 0x4f hasn't been implemented yet\n"); break;
+        case 0x4f:	//SRE ABS
+        {
+            cpu6502->ABS();
+            cpu6502->SRE();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x50:	//BVC Rel
         {
             cpu6502->BVC();
@@ -460,8 +663,22 @@ void machine::emulate(uint8_t* opcode) {
 
         }
         case 0x52: printf("Opcode 0x52 hasn't been implemented yet\n"); break;
-        case 0x53: printf("Opcode 0x53 hasn't been implemented yet\n"); break;
-        case 0x54: printf("Opcode 0x54 hasn't been implemented yet\n"); break;
+        case 0x53:	//SRE IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->SRE();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x54:  //DOP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x55:	//EOR ZP,X
         {
             cpu6502->ZPX();
@@ -478,7 +695,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x57: printf("Opcode 0x57 hasn't been implemented yet\n"); break;
+        case 0x57:	//SRE ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->SRE();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x58:	//CLI
         {
             cpu6502->IMP();
@@ -495,9 +719,30 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x5a: printf("Opcode 0x5a hasn't been implemented yet\n"); break;
-        case 0x5b: printf("Opcode 0x5b hasn't been implemented yet\n"); break;
-        case 0x5c: printf("Opcode 0x5c hasn't been implemented yet\n");  break;
+        case 0x5a:	//NOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(1);
+            break;
+        }
+        case 0x5b:	//SRE ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->SRE();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0x5c:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x5d:	//EOR Abs,X
         {
             cpu6502->ABSX();
@@ -514,7 +759,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x5f: printf("Opcode 0x5f hasn't been implemented yet\n"); break;
+        case 0x5f:	//SRE ABS,X
+        {
+            cpu6502->ABSX();
+            cpu6502->SRE();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x60:	//RTS
         {
             cpu6502->IMP();
@@ -532,8 +784,22 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0x62: printf("Opcode 0x62 hasn't been implemented yet\n"); break;
-        case 0x63: printf("Opcode 0x63 hasn't been implemented yet\n"); break;
-        case 0x64: printf("Opcode 0x64 hasn't been implemented yet\n"); break;
+        case 0x63:	//RRA IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->RRA();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x64:  //DOP ZP
+        {
+            cpu6502->ZP();
+            cpu6502->DOP();
+            cpu6502->incCycles(3);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x65:	//ADC ZP
         {
             cpu6502->ZP();
@@ -550,7 +816,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x67: printf("Opcode 0x67 hasn't been implemented yet\n"); break;
+        case 0x67:	//RRA ZP
+        {
+            cpu6502->ZP();
+            cpu6502->RRA();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x68:	//PLA
         {
             cpu6502->IMP();
@@ -575,7 +848,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0x6b: printf("Opcode 0x6b hasn't been implemented yet\n"); break;
+        case 0x6b:  //ARR IMM
+        {
+            cpu6502->IMM();
+            cpu6502->ARR();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x6c:	//JMP Ind
         {
             cpu6502->IND();
@@ -599,7 +879,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x6f: printf("Opcode 0x6f hasn't been implemented yet\n"); break;
+        case 0x6f:	//RRA ABS
+        {
+            cpu6502->ABS();
+            cpu6502->RRA();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x70:	//BVS Rel
         {
             cpu6502->BVS();
@@ -614,8 +901,22 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0x72: printf("Opcode 0x72 hasn't been implemented yet\n"); break;
-        case 0x73: printf("Opcode 0x73 hasn't been implemented yet\n"); break;
-        case 0x74: printf("Opcode 0x74 hasn't been implemented yet\n"); break;
+        case 0x73:	//RRA IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->RRA();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x74:  //DOP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x75:	//ADC ZP,X
         {
             cpu6502->ZPX();
@@ -632,7 +933,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x77: printf("Opcode 0x77 hasn't been implemented yet\n"); break;
+        case 0x77:	//RRA ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->RRA();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x78:	//SEI
         {
             cpu6502->IMP();
@@ -649,9 +957,30 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x7a: printf("Opcode 0x7a hasn't been implemented yet\n"); break;
-        case 0x7b: printf("Opcode 0x7b hasn't been implemented yet\n"); break;
-        case 0x7c: printf("Opcode 0x7c hasn't been implemented yet\n"); break;
+        case 0x7a:	//NOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(1);
+            break;
+        }
+        case 0x7b:	//RRA ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->RRA();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0x7c:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x7d:	//ADC Abs,X
         {
             cpu6502->ABSX();
@@ -668,8 +997,22 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x7f: printf("Opcode 0x7f hasn't been implemented yet\n"); break;
-        case 0x80: printf("Opcode 0x80 hasn't been implemented yet\n");  break;
+        case 0x7f:	//RRA ABS,X
+        {
+            cpu6502->ABSX();
+            cpu6502->RRA();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0x80:  //DOP IMM
+        {
+            cpu6502->IMM();
+            cpu6502->DOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x81:	//STA Ind,X
         {
             cpu6502->IDX_I();
@@ -678,8 +1021,22 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x82: printf("Opcode 0x82 hasn't been implemented yet\n"); break;
-        case 0x83: printf("Opcode 0x83 hasn't been implemented yet\n"); break;
+        case 0x82:  //DOP IMM
+        {
+            cpu6502->IMM();
+            cpu6502->DOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0x83:  //AAX Ind,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->AAX();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x84:	//STY ZP
         {
             cpu6502->ZP();
@@ -704,7 +1061,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x87: printf("Opcode 0x87 hasn't been implemented yet\n"); break;
+        case 0x87:  //AAX ZP
+        {
+            cpu6502->ZP();
+            cpu6502->AAX();
+            cpu6502->incCycles(3);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x88:	//DEY
         {
             cpu6502->IMP();
@@ -713,7 +1077,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0x89: printf("Opcode 0x89 hasn't been implemented yet\n"); break;
+        case 0x89:  //DOP IMM
+        {
+            cpu6502->IMM();
+            cpu6502->DOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x8a:	//TXA
         {
             cpu6502->IMP();
@@ -747,7 +1118,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0x8f: printf("Opcode 0x8f hasn't been implemented yet\n"); break;
+        case 0x8f:  //AAX Ind,X
+        {
+            cpu6502->ABS();
+            cpu6502->AAX();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0x90:	//BCC Rel
         {
             cpu6502->BCC();
@@ -762,7 +1140,14 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0x92: printf("Opcode 0x92 hasn't been implemented yet\n"); break;
-        case 0x93: printf("Opcode 0x93 hasn't been implemented yet\n"); break;
+        case 0x93:  //AXA IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->AXA();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x94:	//STY ZP,X
         {
             cpu6502->ZPX();
@@ -787,7 +1172,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0x97: printf("Opcode 0x97 hasn't been implemented yet\n"); break;
+        case 0x97:  //AAX ZP,Y
+        {
+            cpu6502->ZPY();
+            cpu6502->AAX();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0x98:	//TYA
         {
             cpu6502->IMP();
@@ -823,7 +1215,14 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0x9e: printf("Opcode 0x9e hasn't been implemented yet\n"); break;
-        case 0x9f: printf("Opcode 0x9f hasn't been implemented yet\n"); break;
+        case 0x9f:  //AXA ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->AXA();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xa0:	//LDY Im
         {
             cpu6502->IMM();
@@ -848,7 +1247,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xa3: printf("Opcode 0xa3 hasn't been implemented yet\n"); break;
+        case 0xa3:	//LAX IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->LAX();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xa4:	//LDY ZP
         {
             cpu6502->ZP();
@@ -873,7 +1279,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xa7: printf("Opcode 0xa7 hasn't been implemented yet\n"); break;
+        case 0xa7:	//LAX ZP
+        {
+            cpu6502->ZP();
+            cpu6502->LAX();
+            cpu6502->incCycles(3);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xa8:	//TAY
         {
             cpu6502->IMP();
@@ -898,7 +1311,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0xab: printf("Opcode 0xab hasn't been implemented yet\n"); break;
+        case 0xab:  //ATX IMM
+        {
+            cpu6502->IMM();
+            cpu6502->ATX();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xac:	//LDY Abs
         {
             cpu6502->ABS();
@@ -923,7 +1343,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xaf: printf("Opcode 0xaf hasn't been implemented yet\n"); break;
+        case 0xaf:	//LAX ABS
+        {
+            cpu6502->ABS();
+            cpu6502->LAX();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xb0:	//BCS Rel
         {
             cpu6502->BCS();
@@ -938,7 +1365,14 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0xb2: printf("Opcode 0xb2 hasn't been implemented yet\n"); break;
-        case 0xb3: printf("Opcode 0xb3 hasn't been implemented yet\n"); break;
+        case 0xb3:  //LAX ABS,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->LAX();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 2) ? cpu6502->incCycles(6) : cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xb4:	//LDY ZP,X
         {
             cpu6502->ZPX();
@@ -963,7 +1397,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xb7: printf("Opcode 0xb7 hasn't been implemented yet\n"); break;
+        case 0xb7:	//LAX ZP,Y
+        {
+            cpu6502->ZPY();
+            cpu6502->LAX();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xb8:	//CLV
         {
             cpu6502->IMP();
@@ -988,7 +1429,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0xbb: printf("Opcode 0xbb hasn't been implemented yet\n"); break;
+        case 0xbb:  //LAR ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->LAR();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xbc:	//LDY Abs,X
         {
             cpu6502->ABSX();
@@ -1013,7 +1461,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xbf: printf("Opcode 0xbf hasn't been implemented yet\n"); break;
+        case 0xbf:  //LAX ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->LAX();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xc0:	//CPY Im
         {
             cpu6502->IMM();
@@ -1030,8 +1485,22 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xc2: printf("Opcode 0xc2 hasn't been implemented yet\n"); break;
-        case 0xc3: printf("Opcode 0xc3 hasn't been implemented yet\n"); break;
+        case 0xc2:  //DOP IMM
+        {
+            cpu6502->IMM();
+            cpu6502->DOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0xc3:  //DCP IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->DCP();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xc4:	//CPY ZP
         {
             cpu6502->ZP();
@@ -1056,7 +1525,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xc7: printf("Opcode 0xc7 hasn't been implemented yet\n"); break;
+        case 0xc7:  //DCP ZP
+        {
+            cpu6502->ZP();
+            cpu6502->DCP();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xc8:	//INY
         {
             cpu6502->IMP();
@@ -1081,7 +1557,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0xcb: printf("Opcode 0xcb hasn't been implemented yet\n"); break;
+        case 0xcb:  //AXS IMM
+        {
+            cpu6502->IMM();
+            cpu6502->AXS();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xcc:	//CPY Abs
         {
             cpu6502->ABS();
@@ -1106,7 +1589,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xcf: printf("Opcode 0xcf hasn't been implemented yet\n"); break;
+        case 0xcf:  //DCP ABS
+        {
+            cpu6502->ABS();
+            cpu6502->DCP();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xd0:	//BNE Rel
         {
             cpu6502->BNE();
@@ -1121,8 +1611,22 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0xd2: printf("Opcode 0xd2 hasn't been implemented yet\n"); break;
-        case 0xd3: printf("Opcode 0xd3 hasn't been implemented yet\n"); break;
-        case 0xd4: printf("Opcode 0xd4 hasn't been implemented yet\n"); break;
+        case 0xd3:  //DCP IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->DCP();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0xd4:  //DOP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xd5:	//CMP ZP,X
         {
             cpu6502->ZPX();
@@ -1139,7 +1643,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xd7: printf("Opcode 0xd7 hasn't been implemented yet\n"); break;
+        case 0xd7:  //DCP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DCP();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xd8:	//CLD
         {
             cpu6502->IMP();
@@ -1156,9 +1667,30 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xda: printf("Opcode 0xda hasn't been implemented yet\n"); break;
-        case 0xdb: printf("Opcode 0xdb hasn't been implemented yet\n"); break;
-        case 0xdc: printf("Opcode 0xdc hasn't been implemented yet\n"); break;
+        case 0xda:	//NOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(1);
+            break;
+        }
+        case 0xdb:  //DCP ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->DCP();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0xdc:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xdd:	//CMP Abs,X
         {
             cpu6502->ABSX();
@@ -1175,7 +1707,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xdf: printf("Opcode 0xdf hasn't been implemented yet\n"); break;
+        case 0xdf:  //DCP ABS,X
+        {
+            cpu6502->ABSX();
+            cpu6502->DCP();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xe0:	//CPX Im
         {
             cpu6502->IMM();
@@ -1192,8 +1731,22 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xe2: printf("Opcode 0xe2 hasn't been implemented yet\n"); break;
-        case 0xe3: printf("Opcode 0xe3 hasn't been implemented yet\n"); break;
+        case 0xe2:  //DOP IMM
+        {
+            cpu6502->IMM();
+            cpu6502->DOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0xe3:  //ISC IND,X
+        {
+            cpu6502->IDX_I();
+            cpu6502->ISC();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xe4:	//CPX ZP
         {
             cpu6502->ZP();
@@ -1218,7 +1771,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xe7: printf("Opcode 0xe7 hasn't been implemented yet\n"); break;
+        case 0xe7:  //ISC ZP
+        {
+            cpu6502->ZP();
+            cpu6502->ISC();
+            cpu6502->incCycles(5);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xe8:	//INX
         {
             cpu6502->IMP();
@@ -1243,7 +1803,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(1);
             break;
         }
-        case 0xeb: printf("Opcode 0xeb hasn't been implemented yet\n"); break;
+        case 0xeb:	//SBC Im
+        {
+            cpu6502->IMM();
+            cpu6502->SBC();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xec:	//CPX Abs
         {
             cpu6502->ABS();
@@ -1268,7 +1835,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xef: printf("Opcode 0xef hasn't been implemented yet\n"); break;
+        case 0xef:  //ISC ABS
+        {
+            cpu6502->ABS();
+            cpu6502->ISC();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xf0:	//BEQ Rel
         {
             cpu6502->BEQ();
@@ -1283,8 +1857,22 @@ void machine::emulate(uint8_t* opcode) {
             break;
         }
         case 0xf2: printf("Opcode 0xf2 hasn't been implemented yet\n"); break;
-        case 0xf3: printf("Opcode 0xf3 hasn't been implemented yet\n"); break;
-        case 0xf4: printf("Opcode 0xf4 hasn't been implemented yet\n"); break;
+        case 0xf3:  //ISC IND,Y
+        {
+            cpu6502->I_IDX();
+            cpu6502->ISC();
+            cpu6502->incCycles(8);
+            cpu6502->incPC(2);
+            break;
+        }
+        case 0xf4:  //DOP ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->DOP();
+            cpu6502->incCycles(4);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xf5:	//SBC ZP,X
         {
             cpu6502->ZPX();
@@ -1301,7 +1889,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(2);
             break;
         }
-        case 0xf7: printf("Opcode 0xf7 hasn't been implemented yet\n"); break;
+        case 0xf7:  //ISC ZP,X
+        {
+            cpu6502->ZPX();
+            cpu6502->ISC();
+            cpu6502->incCycles(6);
+            cpu6502->incPC(2);
+            break;
+        }
         case 0xf8:	//SED
         {
             cpu6502->IMP();
@@ -1318,9 +1913,30 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xfa: printf("Opcode 0xfa hasn't been implemented yet\n"); break;
-        case 0xfb: printf("Opcode 0xfb hasn't been implemented yet\n"); break;
-        case 0xfc: printf("Opcode 0xfc hasn't been implemented yet\n"); break;
+        case 0xfa:	//NOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->incCycles(2);
+            cpu6502->incPC(1);
+            break;
+        }
+        case 0xfb:  //ISC ABS,Y
+        {
+            cpu6502->ABSY();
+            cpu6502->ISC();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
+        case 0xfc:	//TOP
+        {
+            cpu6502->IMP();
+            cpu6502->NOP();
+            cpu6502->hasCrossPage(cpu6502->getPC(), cpu6502->getPC() + 3) ? cpu6502->incCycles(5) : cpu6502->incCycles(4);
+            cpu6502->incPC(3);
+            break;
+        }
         case 0xfd:	//SBC Abs,X
         {
             cpu6502->ABSX();
@@ -1337,7 +1953,14 @@ void machine::emulate(uint8_t* opcode) {
             cpu6502->incPC(3);
             break;
         }
-        case 0xff: printf("Opcode 0xff hasn't been implemented yet\n"); break;
+        case 0xff:  //ISC ABS,X
+        {
+            cpu6502->ABSX();
+            cpu6502->ISC();
+            cpu6502->incCycles(7);
+            cpu6502->incPC(3);
+            break;
+        }
     }
 }
 

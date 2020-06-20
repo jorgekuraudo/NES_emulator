@@ -1,8 +1,8 @@
 # NES_emulator
 ### WIP...
 
-- working on the CPU right now
+- working on the PPU
 
 ### todo
-- include illegal opcodes.
-- test CPU against nestest rom
+- ~~include illegal opcodes.~~ [done]
+- ~~test CPU against nestest rom~~ [done]

@@ -90,6 +90,7 @@ public:
     bool isACC{false};
 
     // instructions
+    // documented OPCODES
     void ADC(); void AND(); void ASL(); void BCC(); void BCS(); void BEQ(); void BIT(); void BMI();
     void BNE(); void BPL(); void BRK(); void BVC(); void BVS(); void CLC(); void CLD(); void CLI();
     void CLV(); void CMP(); void CPX(); void CPY(); void DEC(); void DEX(); void DEY(); void EOR();
@@ -97,6 +98,9 @@ public:
     void LSR(); void NOP(); void ORA(); void PHA(); void PHP(); void PLA(); void PLP(); void ROL();
     void ROR(); void RTI(); void RTS(); void SBC(); void SEC(); void SED(); void SEI(); void STA();
     void STX(); void STY(); void TAX(); void TAY(); void TSX(); void TXA(); void TXS(); void TYA();
-
+    // undocumented OPCODES
+    void AAC(); void AAX(); void ARR(); void ASR(); void ATX(); void AXA();void AXS(); void DCP();
+    void DOP(); void ISC(); void KIL(); void LAR(); void LAX(); void _NOP();void RLA(); void RRA();
+    void _SBC(); void SLO(); void SRE(); void SXA(); void SYA(); void TOP();void XAA(); void XAS();
 };
 #endif

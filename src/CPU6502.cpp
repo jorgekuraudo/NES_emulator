@@ -715,3 +715,152 @@ uint8_t CPU6502::write(uint16_t mem_address, uint8_t data) {
     *RAM[mem_address] = data;
     return 0;
 }
+
+void CPU6502::AAC() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setA(getA() & M);
+    isIMM = false;
+
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+    setC((getA() & 0x80) != 0);
+}
+
+void CPU6502::AAX() {
+    uint8_t result = getX() & getA();
+    write(address, result);
+}
+
+void CPU6502::ARR() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setA(getA() & M);
+    isIMM = false;
+    uint8_t byte = getA();
+    uint8_t old_carry = getC();
+    setC((byte & 0x01) != 0);
+    byte = byte >> 1;
+    byte |= (old_carry << 7);
+    setA(byte);
+    //set flags
+    if (((byte & 0x10) != 0) && ((byte & 0x20) != 0)) { setC(true); setV(false);}
+    if (((byte & 0x10) == 0) && ((byte & 0x20) == 0)) { setC(false); setV(false);}
+    if (((byte & 0x10) != 0) && ((byte & 0x20) == 0)) { setC(false); setV(true);}
+    if (((byte & 0x10) == 0) && ((byte & 0x20) != 0)) { setC(true); setV(true);}
+}
+
+void CPU6502::ASR() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setA(getA() & M);
+    setC((getA() & 0x01) != 0);
+    setA(getA() >> 1);
+    isIMM = false;
+
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::ATX() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    setA(getA() & M);
+    setX(getA());
+    isIMM = false;
+
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::AXA() {
+    uint8_t result = getX() & getA();
+    setA(result);
+    write(address, result & 0x07);
+}
+
+void CPU6502::AXS() {
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t result = getX() & getA();
+    setX(result - M);
+    isIMM = false;
+
+    setC(!(result > 0xff));
+    setZ(getX() == 0);
+    setN((getX() & 0x80) != 0);
+}
+
+void CPU6502::DCP() {
+    uint8_t byte = read(address);
+    write(address, byte - 1);
+    CMP();
+}
+
+void CPU6502::DOP() {
+    if(isIMM) { isIMM = false;}
+}
+
+void CPU6502::ISC() {
+    uint8_t byte = read(address);
+    write(address, byte + 1);
+
+    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint16_t result = getA() - M - (1 - getC());
+    isIMM = false;
+
+    //check for overflow flag
+    setV(checkForOverflow(getA(), -M - (1 - getC()), getC())); //todo come back to this later
+    //set flags
+    setC(!(result > 0xff));
+    setA(result & 0xff); // update accumulator
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::LAR() {
+    uint8_t result = getA() & getSP();
+    setA(result);
+    setX(result);
+    setSP(result);
+
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::LAX() {
+    setX(read(address));
+    setA(read(address));
+
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::RLA() {
+    ROL();
+    AND();
+}
+
+void CPU6502::RRA() {
+    ROR();
+    uint16_t result = getA() + read(address) + getC();
+
+    //check for overflow flag
+    setV(checkForOverflow(getA(), read(address), getC()));
+    //set flags
+    setC(result > 0xff);
+    setA(result & 0xff); // update accumulator
+    setZ(getA() == 0);
+    setN((getA() & 0x80) != 0);
+}
+
+void CPU6502::SLO() {
+    ASL();
+    ORA();
+}
+
+void CPU6502::SRE() {
+    LSR();
+    EOR();
+}
+
+void CPU6502::SXA() {
+
+}
+
+
