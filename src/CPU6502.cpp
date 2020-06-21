@@ -38,14 +38,14 @@ uint8_t CPU6502::twosComplement(const uint8_t& byte) {
 }
 
 void CPU6502::pushPC() {
-    *RAM[SP + 0x100] = (PC >> 8) & 0xff; // copy the MSB
+    write(SP + 0x100, (PC >> 8) & 0xff); // copy the MSB
     --SP;
-    *RAM[SP + 0x100] = PC & 0xff; // copy the LSB
+    write(SP + 0x100, PC & 0xff); // copy the LSB
     --SP;
 }
 
 void CPU6502::popPC() {
-    PC = *RAM[(uint8_t)(SP + 0x01) + 0x100] | (*RAM[(uint8_t)(SP + 0x02) + 0x100] << 8);
+    PC = read((uint8_t)(SP + 0x01) + 0x100) | (read((uint8_t)(SP + 0x02) + 0x100) << 8);
     SP += 2;
 }
 
@@ -72,12 +72,12 @@ void CPU6502::pushProcessorStatus() {
     processor_status |= (0x01 << 5);
     processor_status |= (getV() << 6);
     processor_status |= (getN() << 7);
-    *RAM[SP + 0x100] = processor_status;
+    write(SP + 0x100, processor_status);
     --SP;
 }
 
 void CPU6502::popProcessorStatus() {
-    processor_status = *RAM[(uint8_t )(SP + 0x01) + 0x100];
+    processor_status = read((uint8_t )(SP + 0x01) + 0x100);
 
     processor_status |= (0x01 << 4);
     processor_status |= (0x01 << 5);
@@ -192,33 +192,33 @@ void CPU6502::REL() {
 
 void CPU6502::IND() {
     uint16_t address1 = (opcode[2] << 8) | opcode[1];
-    uint8_t byte1 = *RAM[address1];
+    uint8_t byte1 = read(address1);
     //this is a bug in the original 6502 processor
     uint8_t byte2;
     if (opcode[1] == 0xff) {
-        byte2 = *RAM[(opcode[2] << 8) | 0x00];
+        byte2 = read((opcode[2] << 8) | 0x00);
     }
     else {
-        byte2 = *RAM[address1 + 1];
+        byte2 = read(address1 + 1);
     }
     address = (byte2 << 8) | byte1;
 }
 
 void  CPU6502::IDX_I() {
-    uint8_t byte1 = *RAM[(uint8_t)(opcode[1] + getX())];
-    uint8_t byte2 = *RAM[(uint8_t)(opcode[1] + getX() + 1)];
+    uint8_t byte1 = read((uint8_t)(opcode[1] + getX()));
+    uint8_t byte2 = read((uint8_t)(opcode[1] + getX() + 1));
     address = byte1 | (byte2 << 8);
 }
 
 void CPU6502::I_IDX() {
-    uint8_t byte1 = *RAM[opcode[1]];
-    uint8_t byte2 = *RAM[(uint8_t)(opcode[1] + 1)];
+    uint8_t byte1 = read(opcode[1]);
+    uint8_t byte2 = read((uint8_t)(opcode[1] + 1));
     address = (byte1 | (byte2 << 8)) + getY();
 }
 
 // Instruction set
 void CPU6502::ADC() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     uint16_t result = getA() + M + getC();
     isIMM = false;
 
@@ -232,7 +232,7 @@ void CPU6502::ADC() {
 }
 
 void CPU6502::AND() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setA(getA() & M);
     isIMM = false;
 
@@ -377,11 +377,11 @@ void CPU6502::BVC() {
 }
 
 void CPU6502::BIT() {
-    uint8_t result = getA() & *RAM[address];
+    uint8_t result = getA() & read(address);
 
     setZ(result == 0);
-    setV(*RAM[address] & 0x40);
-    setN((*RAM[address] & 0x80) != 0);
+    setV(read(address) & 0x40);
+    setN((read(address) & 0x80) != 0);
 }
 
 void CPU6502::BRK() {
@@ -389,7 +389,7 @@ void CPU6502::BRK() {
     pushProcessorStatus();
     setB(true);
     setI(true);
-    PC = *RAM[0xfffe] | (*RAM[0xffff] << 8);
+    PC = read(0xfffe) | (read(0xffff) << 8);
 }
 
 void CPU6502::CLC() {setC(false);}
@@ -401,7 +401,7 @@ void CPU6502::SED() {setD(true);}
 void CPU6502::SEI() {setI(true);}
 
 void CPU6502::CMP() {
-    uint8_t target = isIMM ? opcode[1] : *RAM[address];;
+    uint8_t target = isIMM ? opcode[1] : read(address);
     setC(getA() >= target);
     setZ(getA() == target);
     setN(((getA() - target) & 0x80) != 0);
@@ -409,7 +409,7 @@ void CPU6502::CMP() {
 }
 
 void CPU6502::CPX() {
-    uint8_t target = isIMM ? opcode[1] : *RAM[address];;
+    uint8_t target = isIMM ? opcode[1] : read(address);
     setC(getX() >= target);
     setZ(getX() == target);
     setN(((getX() - target) & 0x80) != 0);
@@ -417,7 +417,7 @@ void CPU6502::CPX() {
 }
 
 void CPU6502::CPY() {
-    uint8_t target = isIMM ? opcode[1] : *RAM[address];
+    uint8_t target = isIMM ? opcode[1] : read(address);
     setC(getY() >= target);
     setZ(getY() == target);
     setN(((getY() - target) & 0x80) != 0);
@@ -425,9 +425,9 @@ void CPU6502::CPY() {
 }
 
 void CPU6502::DEC() {
-    *RAM[address] -= 1;
-    setZ(*RAM[address] == 0);
-    setN((*RAM[address] & 0x80) != 0);
+    write(address, read(address) - 1);
+    setZ(read(address) == 0);
+    setN((read(address) & 0x80) != 0);
 }
 
 void CPU6502::DEX() {
@@ -443,9 +443,9 @@ void CPU6502::DEY() {
 }
 
 void CPU6502::INC() {
-    *RAM[address] += 1;
-    setZ(*RAM[address] == 0);
-    setN((*RAM[address] & 0x80) != 0);
+    write(address, read(address) + 1);
+    setZ(read(address) == 0);
+    setN((read(address) & 0x80) != 0);
 }
 
 void CPU6502::INX() {
@@ -461,14 +461,14 @@ void CPU6502::INY() {
 }
 
 void CPU6502::EOR() {
-    uint8_t target = isIMM ? opcode[1] : *RAM[address];
+    uint8_t target = isIMM ? opcode[1] : read(address);
     setA(getA() ^ target);
     setZ(getA() == 0);
     setN((getA() & 0x80) != 0);
 }
 
 void CPU6502::ORA() {
-    uint8_t target = isIMM ? opcode[1] : *RAM[address];
+    uint8_t target = isIMM ? opcode[1] : read(address);
     setA(getA() | target);
     setZ(getA() == 0);
     setN((getA() & 0x80) != 0);
@@ -494,7 +494,7 @@ void CPU6502::RTI() {
 }
 
 void CPU6502::SBC() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     uint16_t result = getA() - M - (1 - getC());
     isIMM = false;
 
@@ -508,19 +508,19 @@ void CPU6502::SBC() {
 }
 
 void CPU6502::STA() {
-    *RAM[address] = getA();
+    write(address, getA());
 }
 
 void CPU6502::STX() {
-    *RAM[address] = getX();
+    write(address, getX());
 }
 
 void CPU6502::STY() {
-    *RAM[address] = getY();
+    write(address, getY());
 }
 
 void CPU6502::LDA() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setA(M);
     setZ(getA() == 0);
     setN((getA() & 0x80) != 0);
@@ -528,7 +528,7 @@ void CPU6502::LDA() {
 }
 
 void CPU6502::LDX() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setX(M);
     setZ(getX() == 0);
     setN((getX() & 0x80) != 0);
@@ -536,7 +536,7 @@ void CPU6502::LDX() {
 }
 
 void CPU6502::LDY() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setY(M);
     setZ(getY() == 0);
     setN((getY() & 0x80) != 0);
@@ -553,7 +553,7 @@ void CPU6502::LSR() {
         isACC = false;
     }
     else {
-        byte = *RAM[address];
+        byte = read(address);
         setC((byte & 0x01) != 0);
         byte = byte >> 1;
         write(address, byte);
@@ -574,7 +574,7 @@ void CPU6502::ROL() {
         isACC = false;
     }
     else {
-        byte = *RAM[address];
+        byte = read(address);
         setC((byte & 0x80) != 0);
         byte = byte << 1;
         byte |= old_carry;
@@ -596,7 +596,7 @@ void CPU6502::ROR() {
         isACC = false;
     }
     else {
-        byte = *RAM[address];
+        byte = read(address);
         setC((byte & 0x01) != 0);
         byte = byte >> 1;
         byte |= (old_carry << 7);
@@ -616,7 +616,7 @@ void CPU6502::ASL() {
         isACC = false;
     }
     else {
-        byte = *RAM[address];
+        byte = read(address);
         setC((byte & 0x80) != 0);
         byte = byte << 1;
         write(address, byte);
@@ -630,7 +630,7 @@ void CPU6502::NOP() {
 }
 
 void CPU6502::PHA() {
-    *RAM[SP + 0x100] = getA();
+    write(SP + 0x100, getA());
     --SP;
 }
 
@@ -639,7 +639,7 @@ void CPU6502::PHP() {
 }
 
 void CPU6502::PLA() {
-    setA(*RAM[(uint8_t)(SP + 0x01) + 0x100]);
+    setA(read((uint8_t)(SP + 0x01) + 0x100));
     setZ(getA() == 0);
     setN((getA() & 0x80) != 0);
     ++SP;
@@ -717,7 +717,7 @@ uint8_t CPU6502::write(uint16_t mem_address, uint8_t data) {
 }
 
 void CPU6502::AAC() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setA(getA() & M);
     isIMM = false;
 
@@ -732,7 +732,7 @@ void CPU6502::AAX() {
 }
 
 void CPU6502::ARR() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setA(getA() & M);
     isIMM = false;
     uint8_t byte = getA();
@@ -749,7 +749,7 @@ void CPU6502::ARR() {
 }
 
 void CPU6502::ASR() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setA(getA() & M);
     setC((getA() & 0x01) != 0);
     setA(getA() >> 1);
@@ -760,7 +760,7 @@ void CPU6502::ASR() {
 }
 
 void CPU6502::ATX() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     setA(getA() & M);
     setX(getA());
     isIMM = false;
@@ -776,7 +776,7 @@ void CPU6502::AXA() {
 }
 
 void CPU6502::AXS() {
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     uint8_t result = getX() & getA();
     setX(result - M);
     isIMM = false;
@@ -800,7 +800,7 @@ void CPU6502::ISC() {
     uint8_t byte = read(address);
     write(address, byte + 1);
 
-    uint8_t M = isIMM ? opcode[1] : *RAM[address];
+    uint8_t M = isIMM ? opcode[1] : read(address);
     uint16_t result = getA() - M - (1 - getC());
     isIMM = false;
 

@@ -21,20 +21,10 @@ loadROM::~loadROM() {
 
 void loadROM::inRAM(int start, int size) {
     ROM_file.seekg(offset);
-    char* buffer;
-    for(int i = 0; i < size; ++i) {
-        ROM_file.seekg(offset + i);
-        ROM_file.read(buffer, 1);
-        *memoryMap.RAM[start + i] = (uint8_t)buffer[0];
-    }
+    ROM_file.read((char*)memoryMap.RAM[start], size);
 }
 
 void loadROM::inVRAM(int start, int size) {
     ROM_file.seekg(offset);
-    char* buffer;
-    for(int i = 0; i < size; ++i) {
-        ROM_file.seekg(offset + i);
-        ROM_file.read(buffer, 1);
-        *ppu_memoryMap.PPU_RAM[start + i] = (uint8_t)buffer[0];
-    }
+    ROM_file.read((char*)ppu_memoryMap.PPU_RAM[start], size);
 }

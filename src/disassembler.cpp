@@ -18,7 +18,7 @@ disassembler::disassembler(std::string path)
     }
 
     //open file containing opcodes for the 6502
-    opcodes.open("6502ops.csv", std::ios::in | std::ios::binary);
+    opcodes.open("./others/6502ops.csv", std::ios::in | std::ios::binary);
     if (opcodes.is_open()) {
         std::cout << "Opcodes" << " loaded successfully" << std::endl;
     }

@@ -3,6 +3,7 @@
 #include "../include/loadROM.h"
 #include "../include/machine.h"
 #include <string>
+
 int main() {
     //initialize RAM and VRAM
     MemoryMap memMap;
@@ -14,7 +15,7 @@ int main() {
     uint8_t** VRAM = ppu_memMap.PPU_RAM;
 
     //load ROM in memory
-    loadROM ROM("nestest.nes", 0x10, memMap, ppu_memMap);
+    loadROM ROM("./build/nestest.nes", 0x10, memMap, ppu_memMap);
     ROM.inRAM(0x8000, 0x4000);
     ROM.inRAM(0xc000, 0x4000);
 
@@ -32,5 +33,6 @@ int main() {
         NES.debugger();
         NES.emulate(cpu.getOpcode());
     }
+
     return 0;
 }
